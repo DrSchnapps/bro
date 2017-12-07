@@ -26,6 +26,7 @@ var path = {
         html: 'src/*.html', //Синтаксис src/*.html говорит gulp что мы хотим взять все файлы с расширением .html
         js: 'src/js/main.js',//В стилях и скриптах нам понадобятся только main файлы
         style: 'src/style/main.scss',
+        styleVendor: 'src/style/vendor.scss',
         img: 'src/img/**/*.*', //Синтаксис img/**/*.* означает - взять все файлы всех расширений из папки и из вложенных каталогов
         fonts: 'src/fonts/**/*.*'
     },
@@ -46,8 +47,7 @@ var config = {
     },
     tunnel: true,
     host: 'localhost',
-    port: 9000,
-    logPrefix: "Frontend_Devil"
+    port: 9000
 };
 
 
@@ -75,6 +75,12 @@ gulp.task('style:build', function () {
         .pipe(prefixer()) //Добавим вендорные префиксы
         .pipe(cssmin()) //Сожмем
         .pipe(sourcemaps.write())
+        .pipe(gulp.dest(path.build.css)) //И в build
+        .pipe(reload({stream: true}));
+
+    gulp.src(path.src.styleVendor) //Выберем наш main.scss
+        .pipe(sass()) //Скомпилируем
+        .pipe(cssmin()) //Сожмем
         .pipe(gulp.dest(path.build.css)) //И в build
         .pipe(reload({stream: true}));
 });
@@ -106,14 +112,14 @@ gulp.task('build', [
     'fonts:build',
     'image:build'
 ]);
-
+ 
 
 gulp.task('watch', function(){
     watch([path.watch.html], function(event, cb) {
         gulp.start('html:build');
     });
     watch([path.watch.style], function(event, cb) {
-        gulp.start('style:build');
+        setTimeout(function(){gulp.start('style:build');},1000)
     });
     watch([path.watch.js], function(event, cb) {
         gulp.start('js:build');
